@@ -38,7 +38,6 @@
 	let num1 = 0
 	let strNum = '0'
 	let operater = ''
-	let isCalculating = false
 	let isContinue = true
 	
 	document.getElementById("displayedNum").innerHTML = strNum
@@ -48,36 +47,33 @@
 		return '0' <= st && st <= '9' 
 	}
 
-	function addNumber(event){
-		let result = ''
-
+	function addNumber(event, strNum, isContinue){
 		if(strNum === '0' || isContinue === false){
-			result = event
+			strNum = event
 		}
 		else {
-			result = strNum + event
+			strNum = strNum + event
 		}
 
 		isContinue = true
-		return result
+		return { strNum, isContinue }
 	}
-	function addDot(){
-		let result = ''
+	function addDot(strNum, isContinue){
 		if(strNum.indexOf('.') >= 0){
 			alert("error")
 		}
 		else if(isContinue === false) {
-			result = '0.'
+			strNum = '0.'
 		}
 		else {
-			result += '.'
+			strNum = strNum + '.'
 		}
 		isContinue = true
-		return result
+		return { strNum, isContinue }
 	}
 
-	function calculate(){
-		let num2 = parseFloat(strNum)
+	function calculate(num1, num2, operater){
+		// let num2 = parseFloat(strNum)
 		if(operater === '+'){
 			num1 += num2
 		}
@@ -96,61 +92,82 @@
 			}
 		}
 		operater = ''
-		return num1
+		return { num1, operater }
 	}
 
-	function addOperater(event){
-		let now = 0
+	function addOperater(event, strNum, isContinue, operater, num1){
 		
 		if(operater !== '' && isContinue) {
-			num1 = calculate()
+			const result = calculate(num1, parseFloat(strNum), operater)
+			num1 = result.num1
+			operater = result.operater
+			strNum = num1.strNum
 		}
-		else if (isContinue)num1 = parseFloat(strNum)
+		else if (isContinue)
+			num1 = parseFloat(strNum)
 
 		operater = event
 		isContinue = false
-		return num1.toString()
+		return { strNum, operater, isContinue, num1}
 	}
 
-	function resulting(){
-		let ans = ''
-		if(operater !== '') ans = calculate().toString()
-		else ans = strNum
+	function resulting(strNum, isContinue, operater, num1){
+		if(operater !== '') { 
+			result = calculate(num1, parseFloat(strNum), operater)
+			operater = result.operater
+			num1 = result.num1
+			strNum = result.num1.toString()
+		}
 		isContinue = false
-		return ans
+
+		return { strNum, isContinue, operater, num1 }
 	}
 
-	function deleteAll(){
+	function deleteAll(strNum,operater,num1){
 		operater = ''
 		num1 = 0
-		return '0'
+		strNum = '0'
+		return { strNum, operater, num1 }
 	}
 
-	function percent(){
-		return (parseFloat(strNum)/100).toString()
+	function percent(strNum){
+		strNum = (parseFloat(strNum)/100).toString()
+		return { strNum }
 	}
 
-	function swift(){
-		return (parseFloat(strNum)*-1).toString()
+	function swift(strNum){
+		strNum = (parseFloat(strNum)*-1).toString()
+		return { strNum }
 	}
 	
 	function onClick(event, index){
-		if('0' <= event && event <= '9' ) 
-			strNum = addNumber(event)
-		else if (event === '.') 
-			strNum = addDot()
-		else if (event === '+' || event === '-' || event === '*' ||event === '/'){ 
-			strNum = addOperater(event)
+		let result = {}
+		if('0' <= event && event <= '9' ) {
+			result = addNumber(event, strNum, isContinue)
 		}
-		else if (event === '=') 
-			strNum = resulting()
-		else if (event === 'AC') 
-			strNum = deleteAll()
-		else if (event == '%') 
-			strNum = percent()
-		else if (event == '+/-') 
-			strNum = swift()
+		else if (event === '.') 
+			result = addDot(strNum, isContinue)
+		else if (event === '+' || event === '-' || event === '*' ||event === '/'){ 
+			result = addOperater(event, strNum, isContinue, operater, num1)
+		}
+		else if (event === '=') {
+			result = resulting(strNum, isContinue, operater, num1)
+		}
+		else if (event === 'AC') {
+			result = deleteAll(strNum, operater, num1)
+		}
+		else if (event == '%')  {
+			result = percent(strNum)
+		}
+		else if (event == '+/-') {
+			result = swift(strNum)
+		}
 
+		if('strNum' in result) strNum = result.strNum
+		if('isContinue' in result) isContinue = result.isContinue
+		if('num1' in result) num1 = result.num1
+		if('operater' in result) operater = result.operater
+			
 		document.getElementById("displayedNum").innerHTML = strNum
 	}
 
@@ -163,7 +180,9 @@
 <style>
 	.card {
 		font-family: "Comic Sans MS", cursive, sans-serif !important;
-		width: 30%;
+		min-width: 200px;
+		margin: 0;
+		max-width: 300px;
 		border: 1px solid lightgray;
 		padding: 20px;
 		background: linear-gradient(#F8B195, #C06C84, #355C7D);
