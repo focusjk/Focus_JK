@@ -1,4 +1,5 @@
 # calculator.github.io
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -35,6 +36,7 @@
 
 	</body>
 </html>
+
 <script type="text/javascript">
 	let num1 = 0
 	let strNum = '0'
@@ -164,7 +166,7 @@
 <style>
 	.card {
 		font-family: "Comic Sans MS", cursive, sans-serif !important;
-		width: 30%;
+<!-- 		width: 30%; -->
 		border: 1px solid lightgray;
 		padding: 20px;
 		background: linear-gradient(#F8B195, #C06C84, #355C7D);
