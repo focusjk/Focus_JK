@@ -1,6 +1,4 @@
 # calculator.github.io
-
-
 <html>
 	<head>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -36,7 +34,6 @@
 
 	</body>
 </html>
-
 <script type="text/javascript">
 	let num1 = 0
 	let strNum = '0'
@@ -73,7 +70,7 @@
 			result = '0.'
 		}
 		else {
-			result += '.'
+			result = strNum + '.'
 		}
 		isContinue = true
 		return result
@@ -153,8 +150,9 @@
 			strNum = percent()
 		else if (event == '+/-') 
 			strNum = swift()
-
+		console.log(isContinue)
 		document.getElementById("displayedNum").innerHTML = strNum
+
 	}
 
 	for(let i=0; i<allButton.length; i++)
@@ -166,11 +164,12 @@
 <style>
 	.card {
 		font-family: "Comic Sans MS", cursive, sans-serif !important;
-<!-- 		width: 30%; -->
+		min-width: 200px;
+		margin: 0;
+		max-width: 300px;
 		border: 1px solid lightgray;
 		padding: 20px;
 		background: linear-gradient(#F8B195, #C06C84, #355C7D);
-		margin: 0;
 	}
 	.monitor {
 		text-align: right;
