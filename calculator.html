@@ -35,10 +35,9 @@
 	</body>
 </html>
 <script type="text/javascript">
-	let num1 = 0
+	let number = 0
 	let strNum = '0'
-	let operater = ''
-	let isCalculating = false
+	let operator = ''
 	let isContinue = true
 	
 	document.getElementById("displayedNum").innerHTML = strNum
@@ -48,109 +47,122 @@
 		return '0' <= st && st <= '9' 
 	}
 
-	function addNumber(event){
-		let result = ''
-
-		if(strNum === '0' || isContinue === false){
-			result = event
+	function addNumber(newNumber, str, isContinue){
+		let resultStr = ''
+		if(str === '0' || isContinue === false){
+			resultStr = newNumber
 		}
 		else {
-			result = strNum + event
+			resultStr = str + newNumber
 		}
 
-		isContinue = true
-		return result
+		return { strNum: resultStr, isContinue: true }
 	}
-	function addDot(){
-		let result = ''
-		if(strNum.indexOf('.') >= 0){
+
+	function addDot(str, isContinue){
+		let resultStr = ''
+		if(str.indexOf('.') >= 0){
 			alert("error")
+			resultStr = str
 		}
 		else if(isContinue === false) {
-			result = '0.'
+			resultStr = '0.'
 		}
 		else {
-			result += '.'
+			resultStr = str + '.'
 		}
-		isContinue = true
-		return result
+		return { strNum: resultStr, isContinue: true }
 	}
 
-	function calculate(){
-		let num2 = parseFloat(strNum)
-		if(operater === '+'){
-			num1 += num2
+	function calculate(number, number2, operator){
+		let resultNum = 0
+		if(operator === '+'){
+			resultNum = number + number2
 		}
-		else if(operater === '-'){
-			num1 -= num2
+		else if(operator === '-'){
+			resultNum = number - number2
 		}
-		else if(operater === '*'){
-			num1 *= num2
+		else if(operator === '*'){
+			resultNum = number * number2
 		}
-		else if(operater === '/'){
+		else if(operator === '/'){
 			if(strNum === '0') {
 				alert('error')
+				resultNum = number
 			}
 			else {
-				num1 /= num2
+				resultNum = number / number2
 			}
 		}
-		operater = ''
-		return num1
+		return { number: resultNum, operator: '', strNum: resultNum.toString() }
 	}
 
-	function addOperater(event){
-		let now = 0
-		
-		if(operater !== '' && isContinue) {
-			num1 = calculate()
+	function addOperator(newOperator, str, isContinue, operator, number){
+		let resultStr = ''
+		let resultNum = 0
+		if(operator !== '' && isContinue) {
+			const result = calculate(number, parseFloat(str), operator)
+			resultNum = result.number
+			resultStr = result.strNum
 		}
-		else if (isContinue)num1 = parseFloat(strNum)
-
-		operater = event
-		isContinue = false
-		return num1.toString()
+		else  {
+			resultNum = parseFloat(str)
+			resultStr = str
+		}
+		return { strNum: resultStr, operator: newOperator, isContinue: false, number: resultNum}
 	}
 
-	function resulting(){
-		let ans = ''
-		if(operater !== '') ans = calculate().toString()
-		else ans = strNum
-		isContinue = false
-		return ans
+	function resulting(str, isContinue, operator, number){
+		let result = {}
+		if(operator !== '') { 
+			result = calculate(number, parseFloat(str), operator)
+		}
+		return 	{ 	strNum: result.strNum ? result.strNum : str, 
+					isContinue: false, 
+					operator: '', 
+					number: 'number' in result ? result.number : number 
+				}
 	}
 
 	function deleteAll(){
-		operater = ''
-		num1 = 0
-		return '0'
+		return { strNum: '0', operator: '', number: 0 }
 	}
 
-	function percent(){
-		return (parseFloat(strNum)/100).toString()
+	function percent(str){
+		return { strNum: (parseFloat(str)/100).toString()}
 	}
 
-	function swift(){
-		return (parseFloat(strNum)*-1).toString()
+	function swift(str){
+		return { strNum: (parseFloat(str)*-1).toString() }
 	}
 	
 	function onClick(event, index){
-		if('0' <= event && event <= '9' ) 
-			strNum = addNumber(event)
-		else if (event === '.') 
-			strNum = addDot()
-		else if (event === '+' || event === '-' || event === '*' ||event === '/'){ 
-			strNum = addOperater(event)
+		let result = {}
+		if('0' <= event && event <= '9' ) {
+			result = addNumber(event, strNum, isContinue)
 		}
-		else if (event === '=') 
-			strNum = resulting()
-		else if (event === 'AC') 
-			strNum = deleteAll()
-		else if (event == '%') 
-			strNum = percent()
-		else if (event == '+/-') 
-			strNum = swift()
+		else if (event === '.') 
+			result = addDot(strNum, isContinue)
+		else if (event === '+' || event === '-' || event === '*' ||event === '/'){ 
+			result = addOperator(event, strNum, isContinue, operator, number)
+		}
+		else if (event === '=') {
+			result = resulting(strNum, isContinue, operator, number)
+		}
+		else if (event === 'AC') {
+			result = deleteAll()
+		}
+		else if (event == '%')  {
+			result = percent(strNum)
+		}
+		else if (event == '+/-') {
+			result = swift(strNum)
+		}
 
+		if('strNum' in result) strNum = result.strNum
+		if('isContinue' in result) isContinue = result.isContinue
+		if('number' in result) number = result.number
+		if('operator' in result) operator = result.operator
 		document.getElementById("displayedNum").innerHTML = strNum
 	}
 
@@ -163,7 +175,9 @@
 <style>
 	.card {
 		font-family: "Comic Sans MS", cursive, sans-serif !important;
-		width: 30%;
+		min-width: 200px;
+		margin: 0;
+		max-width: 300px;
 		border: 1px solid lightgray;
 		padding: 20px;
 		background: linear-gradient(#F8B195, #C06C84, #355C7D);
