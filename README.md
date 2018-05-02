@@ -170,6 +170,7 @@
 		border: 1px solid lightgray;
 		padding: 20px;
 		background: linear-gradient(#F8B195, #C06C84, #355C7D);
+		margin: 0;
 	}
 	.monitor {
 		text-align: right;
