@@ -35,9 +35,9 @@
 	</body>
 </html>
 <script type="text/javascript">
-	let num1 = 0
+	let number = 0
 	let strNum = '0'
-	let operater = ''
+	let operator = ''
 	let isContinue = true
 	
 	document.getElementById("displayedNum").innerHTML = strNum
@@ -47,97 +47,93 @@
 		return '0' <= st && st <= '9' 
 	}
 
-	function addNumber(event, strNum, isContinue){
-		if(strNum === '0' || isContinue === false){
-			strNum = event
+	function addNumber(newNumber, str, isContinue){
+		let resultStr = ''
+		if(str === '0' || isContinue === false){
+			resultStr = newNumber
 		}
 		else {
-			strNum = strNum + event
+			resultStr = str + newNumber
 		}
 
-		isContinue = true
-		return { strNum, isContinue }
+		return { strNum: resultStr, isContinue: true }
 	}
-	function addDot(strNum, isContinue){
-		if(strNum.indexOf('.') >= 0){
+
+	function addDot(str, isContinue){
+		let resultStr = ''
+		if(str.indexOf('.') >= 0){
 			alert("error")
+			resultStr = str
 		}
 		else if(isContinue === false) {
-			strNum = '0.'
+			resultStr = '0.'
 		}
 		else {
-			strNum = strNum + '.'
+			resultStr = str + '.'
 		}
-		isContinue = true
-		return { strNum, isContinue }
+		return { strNum: resultStr, isContinue: true }
 	}
 
-	function calculate(num1, num2, operater){
-		// let num2 = parseFloat(strNum)
-		if(operater === '+'){
-			num1 += num2
+	function calculate(number, number2, operator){
+		let resultNum = 0
+		if(operator === '+'){
+			resultNum = number + number2
 		}
-		else if(operater === '-'){
-			num1 -= num2
+		else if(operator === '-'){
+			resultNum = number - number2
 		}
-		else if(operater === '*'){
-			num1 *= num2
+		else if(operator === '*'){
+			resultNum = number * number2
 		}
-		else if(operater === '/'){
+		else if(operator === '/'){
 			if(strNum === '0') {
 				alert('error')
+				resultNum = number
 			}
 			else {
-				num1 /= num2
+				resultNum = number / number2
 			}
 		}
-		operater = ''
-		return { num1, operater }
+		return { number: resultNum, operator: '', strNum: resultNum.toString() }
 	}
 
-	function addOperater(event, strNum, isContinue, operater, num1){
-		
-		if(operater !== '' && isContinue) {
-			const result = calculate(num1, parseFloat(strNum), operater)
-			num1 = result.num1
-			operater = result.operater
-			strNum = num1.strNum
+	function addOperator(newOperator, str, isContinue, operator, number){
+		let resultStr = ''
+		let resultNum = 0
+		if(operator !== '' && isContinue) {
+			const result = calculate(number, parseFloat(str), operator)
+			resultNum = result.number
+			resultStr = result.strNum
 		}
-		else if (isContinue)
-			num1 = parseFloat(strNum)
-
-		operater = event
-		isContinue = false
-		return { strNum, operater, isContinue, num1}
-	}
-
-	function resulting(strNum, isContinue, operater, num1){
-		if(operater !== '') { 
-			result = calculate(num1, parseFloat(strNum), operater)
-			operater = result.operater
-			num1 = result.num1
-			strNum = result.num1.toString()
+		else  {
+			resultNum = parseFloat(str)
+			resultStr = str
 		}
-		isContinue = false
-
-		return { strNum, isContinue, operater, num1 }
+		return { strNum: resultStr, operator: newOperator, isContinue: false, number: resultNum}
 	}
 
-	function deleteAll(strNum,operater,num1){
-		operater = ''
-		num1 = 0
-		strNum = '0'
-		return { strNum, operater, num1 }
+	function resulting(str, isContinue, operator, number){
+		let result = {}
+		if(operator !== '') { 
+			result = calculate(number, parseFloat(str), operator)
+		}
+		return 	{ 	strNum: result.strNum ? result.strNum : str, 
+					isContinue: false, 
+					operator: '', 
+					number: 'number' in result ? result.number : number 
+				}
 	}
 
-	function percent(strNum){
-		strNum = (parseFloat(strNum)/100).toString()
-		return { strNum }
+	function deleteAll(){
+		return { strNum: '0', operator: '', number: 0 }
 	}
 
-	function swift(strNum){
-		strNum = (parseFloat(strNum)*-1).toString()
-		return { strNum }
+	function percent(str){
+		return { strNum: (parseFloat(str)/100).toString()}
+	}
+
+	function swift(str){
+		return { strNum: (parseFloat(str)*-1).toString() }
 	}
 	
 	function onClick(event, index){
@@ -148,13 +144,13 @@
 		else if (event === '.') 
 			result = addDot(strNum, isContinue)
 		else if (event === '+' || event === '-' || event === '*' ||event === '/'){ 
-			result = addOperater(event, strNum, isContinue, operater, num1)
+			result = addOperator(event, strNum, isContinue, operator, number)
 		}
 		else if (event === '=') {
-			result = resulting(strNum, isContinue, operater, num1)
+			result = resulting(strNum, isContinue, operator, number)
 		}
 		else if (event === 'AC') {
-			result = deleteAll(strNum, operater, num1)
+			result = deleteAll()
 		}
 		else if (event == '%')  {
 			result = percent(strNum)
@@ -165,9 +161,8 @@
 
 		if('strNum' in result) strNum = result.strNum
 		if('isContinue' in result) isContinue = result.isContinue
-		if('num1' in result) num1 = result.num1
-		if('operater' in result) operater = result.operater
-			
+		if('number' in result) number = result.number
+		if('operator' in result) operator = result.operator
 		document.getElementById("displayedNum").innerHTML = strNum
 	}
 
